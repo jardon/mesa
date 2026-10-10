@@ -186,6 +186,7 @@ nvkmd_jensen_ctx_bind(struct nvkmd_ctx *_ctx,
          op.handle = mem->handle;
          op.bo_offset = bind->mem_offset_B;
          op.flags = va->base.pte_kind;
+         op.tile_mode = mem->tile_mode;
       } else {
          op.op = DRM_JENSEN_VM_BIND_OP_UNBIND;
       }

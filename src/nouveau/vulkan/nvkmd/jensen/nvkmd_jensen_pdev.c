@@ -172,7 +172,7 @@ nvkmd_jensen_try_create_pdev(struct _drmDevice *drm_device,
    pdev->base.kmd_info = (struct nvkmd_info) {
       .has_dma_buf = true,
       .has_get_vram_used = false,
-      .has_alloc_tiled = false,
+      .has_alloc_tiled = true,
       .has_map_fixed = true,
       .has_overmap = false,
       .has_compression = false,

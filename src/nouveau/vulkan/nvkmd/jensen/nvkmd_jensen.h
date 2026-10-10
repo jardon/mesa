@@ -52,6 +52,8 @@ struct drm_jensen_gem_create {
    uint32_t flags;
    uint32_t handle;
    uint64_t offset;
+   uint32_t pte_kind;
+   uint32_t tile_mode;
 };
 
 struct drm_jensen_gem_map_offset {
@@ -67,7 +69,7 @@ struct drm_jensen_vm_bind_op {
    uint64_t bo_offset;
    uint64_t range;
    uint32_t flags;
-   uint32_t pad;
+   uint32_t tile_mode;
 };
 
 struct drm_jensen_channel_alloc {
@@ -145,6 +147,9 @@ struct nvkmd_jensen_mem {
 
    uint32_t handle;
    uint64_t map_handle;
+
+   uint8_t pte_kind;
+   uint16_t tile_mode;
 };
 
 NVKMD_DECL_SUBCLASS(mem, jensen);

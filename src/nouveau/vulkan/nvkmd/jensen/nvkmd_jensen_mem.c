@@ -21,6 +21,7 @@ create_mem_or_close_gem(struct nvkmd_jensen_dev *dev,
                         struct vk_object_base *log_obj,
                         enum nvkmd_mem_flags mem_flags,
                         uint32_t handle, uint64_t map_handle, uint64_t size_B,
+                        uint8_t pte_kind, uint16_t tile_mode,
                         enum nvkmd_va_flags va_flags,
                         uint64_t va_align_B,
                         struct nvkmd_mem **mem_out)
@@ -38,9 +39,11 @@ create_mem_or_close_gem(struct nvkmd_jensen_dev *dev,
                   mem_flags, size_B, va_align_B);
    mem->handle = handle;
    mem->map_handle = map_handle;
+   mem->pte_kind = pte_kind;
+   mem->tile_mode = tile_mode;
 
    result = nvkmd_dev_alloc_va(&dev->base, log_obj,
-                               va_flags, 0 /* pte_kind */,
+                               va_flags, pte_kind,
                                size_B, va_align_B,
                                0 /* fixed_addr */,
                                &mem->base.va);
@@ -89,8 +92,6 @@ nvkmd_jensen_alloc_tiled_mem(struct nvkmd_dev *_dev,
    struct nvkmd_jensen_dev *dev = nvkmd_jensen_dev(_dev);
    const struct nv_device_info *dev_info = &dev->base.pdev->dev_info;
 
-   assert(pte_kind == 0 && tile_mode == 0);
-
    assert(util_bitcount(flags & (NVKMD_MEM_LOCAL |
                                  NVKMD_MEM_GART |
                                  NVKMD_MEM_VRAM)) == 1);
@@ -112,6 +113,8 @@ nvkmd_jensen_alloc_tiled_mem(struct nvkmd_dev *_dev,
    struct drm_jensen_gem_create req = {
       .size = size_B,
       .flags = gem_flags,
+      .pte_kind = pte_kind,
+      .tile_mode = tile_mode,
    };
    if (drmCommandWriteRead(dev->fd, DRM_JENSEN_GEM_CREATE,
                            &req, sizeof(req)) != 0)
@@ -123,7 +126,8 @@ nvkmd_jensen_alloc_tiled_mem(struct nvkmd_dev *_dev,
       va_flags |= NVKMD_VA_GART;
 
    return create_mem_or_close_gem(dev, log_obj, flags, req.handle, req.offset,
-                                  size_B, va_flags, align_B, mem_out);
+                                  size_B, pte_kind, tile_mode,
+                                  va_flags, align_B, mem_out);
 }
 
 VkResult
@@ -160,7 +164,8 @@ nvkmd_jensen_import_dma_buf(struct nvkmd_dev *_dev,
                                 NVKMD_MEM_CAN_MAP | NVKMD_MEM_COHERENT;
 
    return create_mem_or_close_gem(dev, log_obj, flags, handle, off.offset,
-                                  size_B, 0 /* va_flags */,
+                                  size_B, 0 /* pte_kind */, 0 /* tile_mode */,
+                                  0 /* va_flags */,
                                   0 /* va_align_B */, mem_out);
 
 fail_size:

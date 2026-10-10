@@ -173,6 +173,7 @@ nvkmd_jensen_va_bind_mem(struct nvkmd_va *_va,
       .range = range_B,
       .bo_offset = mem_offset_B,
       .flags = va->base.pte_kind,
+      .tile_mode = mem->tile_mode,
    };
    return jensen_vm_bind(dev, log_obj, &bind);
 }
