@@ -17,6 +17,8 @@
 #define DRM_JENSEN_CHANNEL_ALLOC 0x06
 #define DRM_JENSEN_CHANNEL_FREE 0x07
 #define DRM_JENSEN_EXEC 0x08
+#define DRM_JENSEN_GET_TIMESTAMP 0x09
+#define DRM_JENSEN_GET_VRAM_USED 0x0A
 
 #define DRM_JENSEN_SYNC_SYNCOBJ 0
 #define DRM_JENSEN_SYNC_TIMELINE_SYNCOBJ 1
@@ -102,6 +104,15 @@ struct drm_jensen_exec {
    uint64_t wait_ptr;
    uint32_t sig_count;
    uint64_t sig_ptr;
+};
+
+struct drm_jensen_get_timestamp {
+   uint64_t timestamp;
+};
+
+struct drm_jensen_vram_usage {
+   uint64_t used_B;
+   uint64_t size_B;
 };
 
 struct nvkmd_jensen_pdev {

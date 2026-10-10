@@ -171,7 +171,7 @@ nvkmd_jensen_try_create_pdev(struct _drmDevice *drm_device,
 
    pdev->base.kmd_info = (struct nvkmd_info) {
       .has_dma_buf = true,
-      .has_get_vram_used = false,
+      .has_get_vram_used = true,
       .has_alloc_tiled = true,
       .has_map_fixed = true,
       .has_overmap = false,
@@ -214,7 +214,14 @@ nvkmd_jensen_pdev_destroy(struct nvkmd_pdev *_pdev)
 static uint64_t
 nvkmd_jensen_pdev_get_vram_used(struct nvkmd_pdev *_pdev)
 {
-   return 0;
+   struct nvkmd_jensen_pdev *pdev = nvkmd_jensen_pdev(_pdev);
+   struct drm_jensen_vram_usage args = { 0 };
+
+   if (drmCommandWriteRead(pdev->fd, DRM_JENSEN_GET_VRAM_USED,
+                           &args, sizeof(args)) != 0)
+      return 0;
+
+   return args.used_B;
 }
 
 static int

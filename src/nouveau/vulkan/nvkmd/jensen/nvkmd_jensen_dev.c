@@ -5,6 +5,8 @@
 #include "util/u_memory.h"
 #include "vk_log.h"
 
+#include <xf86drm.h>
+
 VkResult
 nvkmd_jensen_create_dev(struct nvkmd_pdev *_pdev,
                         struct vk_object_base *log_obj,
@@ -56,7 +58,14 @@ nvkmd_jensen_dev_destroy(struct nvkmd_dev *_dev)
 static uint64_t
 nvkmd_jensen_dev_get_gpu_timestamp(struct nvkmd_dev *_dev)
 {
-   return 0;
+   struct nvkmd_jensen_dev *dev = nvkmd_jensen_dev(_dev);
+   struct drm_jensen_get_timestamp args = { 0 };
+
+   if (drmCommandWriteRead(dev->fd, DRM_JENSEN_GET_TIMESTAMP,
+                           &args, sizeof(args)) != 0)
+      return 0;
+
+   return args.timestamp;
 }
 
 static int
