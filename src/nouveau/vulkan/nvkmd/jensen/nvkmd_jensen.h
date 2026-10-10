@@ -14,6 +14,14 @@
 #define DRM_JENSEN_GET_DEVICE_INFO 0x03
 #define DRM_JENSEN_GEM_CREATE 0x04
 #define DRM_JENSEN_VM_BIND 0x05
+#define DRM_JENSEN_CHANNEL_ALLOC 0x06
+#define DRM_JENSEN_CHANNEL_FREE 0x07
+#define DRM_JENSEN_EXEC 0x08
+
+#define DRM_JENSEN_SYNC_SYNCOBJ 0
+#define DRM_JENSEN_SYNC_TIMELINE_SYNCOBJ 1
+
+#define DRM_JENSEN_EXEC_PUSH_NO_PREFETCH (1u << 0)
 
 #define DRM_JENSEN_GEM_VRAM (1u << 0)
 #define DRM_JENSEN_GEM_GTT (1u << 1)
@@ -60,6 +68,38 @@ struct drm_jensen_vm_bind_op {
    uint64_t range;
    uint32_t flags;
    uint32_t pad;
+};
+
+struct drm_jensen_channel_alloc {
+   uint32_t channel;
+   uint32_t pad;
+};
+
+struct drm_jensen_channel_free {
+   uint32_t channel;
+   uint32_t pad;
+};
+
+struct drm_jensen_sync {
+   uint32_t flags;
+   uint32_t handle;
+   uint64_t timeline_value;
+};
+
+struct drm_jensen_exec_push {
+   uint64_t va;
+   uint32_t va_len;
+   uint32_t flags;
+};
+
+struct drm_jensen_exec {
+   uint32_t channel;
+   uint32_t push_count;
+   uint64_t push_ptr;
+   uint32_t wait_count;
+   uint64_t wait_ptr;
+   uint32_t sig_count;
+   uint64_t sig_ptr;
 };
 
 struct nvkmd_jensen_pdev {
@@ -138,8 +178,20 @@ VkResult nvkmd_jensen_alloc_va(struct nvkmd_dev *dev,
                                uint64_t size_B, uint64_t align_B,
                                uint64_t fixed_addr, struct nvkmd_va **va_out);
 
+#define NVKMD_JENSEN_MAX_PUSHES 8
+#define NVKMD_JENSEN_MAX_SYNCS 8
+
 struct nvkmd_jensen_ctx {
    struct nvkmd_ctx base;
+
+   bool is_bind;
+   uint32_t channel;
+   uint32_t syncobj;
+
+   struct drm_jensen_exec req;
+   struct drm_jensen_exec_push req_push[NVKMD_JENSEN_MAX_PUSHES];
+   struct drm_jensen_sync req_wait[NVKMD_JENSEN_MAX_SYNCS];
+   struct drm_jensen_sync req_sig[NVKMD_JENSEN_MAX_SYNCS];
 };
 
 NVKMD_DECL_SUBCLASS(ctx, jensen);
