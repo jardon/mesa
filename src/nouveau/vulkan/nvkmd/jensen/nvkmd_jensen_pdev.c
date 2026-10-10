@@ -240,15 +240,6 @@ nvkmd_jensen_pdev_get_drm_primary_fd(struct nvkmd_pdev *_pdev)
    return pdev->primary_fd;
 }
 
-VkResult
-nvkmd_jensen_create_dev(struct nvkmd_pdev *pdev,
-                        struct vk_object_base *log_obj,
-                        struct nvkmd_dev **dev_out)
-{
-   return vk_errorf(log_obj, VK_ERROR_INCOMPATIBLE_DRIVER,
-                    "Jensen KMD backend device creation is not implemented yet");
-}
-
 const struct nvkmd_pdev_ops nvkmd_jensen_pdev_ops = {
    .destroy = nvkmd_jensen_pdev_destroy,
    .get_vram_used = nvkmd_jensen_pdev_get_vram_used,

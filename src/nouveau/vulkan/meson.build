@@ -99,7 +99,11 @@ nvk_files = files(
   'nvkmd/nouveau/nvkmd_nouveau_pdev.c',
   'nvkmd/nouveau/nvkmd_nouveau_va.c',
   'nvkmd/jensen/nvkmd_jensen.h',
+  'nvkmd/jensen/nvkmd_jensen_ctx.c',
+  'nvkmd/jensen/nvkmd_jensen_dev.c',
+  'nvkmd/jensen/nvkmd_jensen_mem.c',
   'nvkmd/jensen/nvkmd_jensen_pdev.c',
+  'nvkmd/jensen/nvkmd_jensen_va.c',
   'nvkmd/nvkmd.c',
   'nvkmd/nvkmd.h',
 )
