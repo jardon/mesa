@@ -4,6 +4,7 @@
  */
 
 #include "nvkmd.h"
+#include "jensen/nvkmd_jensen.h"
 #include "nouveau/nvkmd_nouveau.h"
 #include "nv_push.h"
 #include "util/cache_ops.h"
@@ -88,6 +89,11 @@ nvkmd_try_create_pdev_for_drm(struct _drmDevice *drm_device,
                               enum nvk_debug debug_flags,
                               struct nvkmd_pdev **pdev_out)
 {
+   VkResult result = nvkmd_jensen_try_create_pdev(drm_device, log_obj,
+                                                  debug_flags, pdev_out);
+   if (result != VK_ERROR_INCOMPATIBLE_DRIVER)
+      return result;
+
    return nvkmd_nouveau_try_create_pdev(drm_device, log_obj,
                                         debug_flags, pdev_out);
 }
