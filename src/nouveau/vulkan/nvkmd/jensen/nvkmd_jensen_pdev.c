@@ -112,6 +112,24 @@ nvkmd_jensen_try_create_pdev(struct _drmDevice *drm_device,
                        "DRM_JENSEN_GET_DEVICE_INFO failed on %s: %m", path);
    }
 
+   /* Verify execution readiness: if hardware channels or pushbuffer submissions
+    * fail (e.g. GSP is offline or hardware hung), reject device enumeration
+    * so Vulkan falls back to the integrated GPU instead of rendering black windows. */
+   struct drm_jensen_channel_alloc chan_alloc = { 0 };
+   if (drmCommandWriteRead(fd, DRM_JENSEN_CHANNEL_ALLOC, &chan_alloc, sizeof(chan_alloc)) == 0) {
+      struct drm_jensen_exec exec_test = { .channel = chan_alloc.channel };
+      int exec_ret = drmCommandWriteRead(fd, DRM_JENSEN_EXEC, &exec_test, sizeof(exec_test));
+      struct drm_jensen_channel_free chan_free = { .channel = chan_alloc.channel };
+      drmCommandWriteRead(fd, DRM_JENSEN_CHANNEL_FREE, &chan_free, sizeof(chan_free));
+      if (exec_ret != 0) {
+         close(fd);
+         return VK_ERROR_INCOMPATIBLE_DRIVER;
+      }
+   } else {
+      close(fd);
+      return VK_ERROR_INCOMPATIBLE_DRIVER;
+   }
+
    struct stat st;
    if (stat(path, &st) != 0) {
       close(fd);
