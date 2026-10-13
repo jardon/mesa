@@ -153,6 +153,16 @@ nouveau_zink_predicate(int fd, const char *driver)
 #ifndef HAVE_LIBDRM
    return true;
 #else
+   char *kernel_driver = loader_get_kernel_driver_name(fd);
+   const bool is_jensen = kernel_driver && !strcmp(kernel_driver, "jensen");
+   free(kernel_driver);
+
+   if (is_jensen) {
+      if (!strcmp(driver, "zink"))
+         return true;
+      return false;
+   }
+
    /* Never load on nv proprietary driver */
    if (!drm_fd_is_nouveau(fd))
       return false;
