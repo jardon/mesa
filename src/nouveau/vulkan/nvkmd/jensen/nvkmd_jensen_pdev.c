@@ -117,7 +117,15 @@ nvkmd_jensen_try_create_pdev(struct _drmDevice *drm_device,
     * so Vulkan falls back to the integrated GPU instead of rendering black windows. */
    struct drm_jensen_channel_alloc chan_alloc = { 0 };
    if (drmCommandWriteRead(fd, DRM_JENSEN_CHANNEL_ALLOC, &chan_alloc, sizeof(chan_alloc)) == 0) {
-      struct drm_jensen_exec exec_test = { .channel = chan_alloc.channel };
+      struct drm_jensen_exec_push test_push = {
+         .va = 0x1000,
+         .va_len = 4,
+      };
+      struct drm_jensen_exec exec_test = {
+         .channel = chan_alloc.channel,
+         .push_count = 1,
+         .push_ptr = (uint64_t)(uintptr_t)&test_push,
+      };
       int exec_ret = drmCommandWriteRead(fd, DRM_JENSEN_EXEC, &exec_test, sizeof(exec_test));
       struct drm_jensen_channel_free chan_free = { .channel = chan_alloc.channel };
       drmCommandWriteRead(fd, DRM_JENSEN_CHANNEL_FREE, &chan_free, sizeof(chan_free));
